@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCA-SHARE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: #060C14;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, 'Hiragino Sans', sans-serif;
+}
+
+/* ── Phone Shell ── */
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #0A1120;
+  border-radius: 44px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px #1E2D40,
+    0 0 0 8px #060C14,
+    0 60px 120px rgba(0,0,0,0.9);
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  height: 48px;
+  background: #0A1120;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #F1F5F9;
+  position: relative;
+  z-index: 10;
+}
+.status-bar .notch {
+  width: 126px;
+  height: 36px;
+  background: #060C14;
+  border-radius: 0 0 20px 20px;
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+}
+.status-icons { display: flex; gap: 6px; align-items: center; }
+
+/* ── Screen Container ── */
+.screens {
+  position: absolute;
+  top: 48px;
+  left: 0; right: 0;
+  bottom: 82px;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: block; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 82px;
+  background: #0D1828;
+  border-top: 1px solid #1E2D40;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  z-index: 20;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: all 0.2s;
+}
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #4A6080;
+  transition: color 0.2s;
+}
+.nav-item.active .nav-label { color: #4ADE80; }
+.nav-item.active .nav-icon { filter: drop-shadow(0 0 6px #4ADE80); }
+
+/* ── Header ── */
+.header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: #0A1120;
+  z-index: 5;
+}
+.header-logo {
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4ADE80, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #F1F5F9;
+}
+.header-back {
+  font-size: 14px;
+  color: #4ADE80;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+.header-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4ADE80, #22D3EE);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #0A1120;
+}
+.header-bell { font-size: 20px; cursor: pointer; }
+
+/* ── Typography ── */
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4A6080;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+/* ── Tag / Badge ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-green { background: rgba(74,222,128,0.15); color: #4ADE80; }
+.tag-amber { background: rgba(251,146,60,0.15); color: #FB923C; }
+.tag-blue  { background: rgba(34,211,238,0.15); color: #22D3EE; }
+.tag-red   { background: rgba(248,113,113,0.15); color: #F87171; }
+
+/* ── Card ── */
+.card {
+  background: #131F30;
+  border-radius: 16px;
+  border: 1px solid #1E2D40;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:active { transform: scale(0.97); }
+
+/* ── Button ── */
+.btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, #16A34A, #4ADE80);
+  color: #0A1120;
+}
+.btn-secondary {
+  background: #1E2D40;
+  color: #F1F5F9;
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid #4ADE80;
+  color: #4ADE80;
+}
+
+/* ══════════════════════════════════
+   SCREEN 1: MARKET
+══════════════════════════════════ */
+#screen-market {
+  padding-bottom: 20px;
+}
+
+.market-hero {
+  margin: 0 16px 20px;
+  background: linear-gradient(135deg, #0F2D1F 0%, #163040 100%);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #1E3D2F;
+  position: relative;
+  overflow: hidden;
+}
+.market-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(74,222,128,0.15), transparent);
+  border-radius: 50%;
+}
+.market-hero h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #F1F5F9;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+.market-hero p {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.5;
+}
+.market-hero-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+.hero-stat { flex: 1; }
+.hero-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: #4ADE80;
+}
+.hero-stat-label { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-chip.active {
+  background: #4ADE80;
+  color: #0A1120;
+}
+.filter-chip:not(.active) {
+  background: #131F30;
+  color: #64748B;
+  border: 1px solid #1E2D40;
+}
+
+.asset-list { padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.asset-card {
+  background: #131F30;
+  border-radius: 18px;
+  border: 1px solid #1E2D40;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.asset-card:active { transform: scale(0.98); }
+
+.asset-card-image {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  position: relative;
+  overflow: hidden;
+}
+.asset-card-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+}
+.asset-card-progress-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(0,0,0,0.4);
+}
+.asset-card-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #16A34A, #4ADE80);
+}
+
+.asset-card-body { padding: 14px 16px 16px; }
+.asset-card-location {
+  font-size: 11px;
+  color: #4A6080;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.asset-card-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #F1F5F9;
+  margin-bottom: 8px;
+}
+.asset-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.asset-card-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: #4ADE80;
+}
+.asset-card-price span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4A6080;
+}
+.asset-card-yield {
+  font-size: 12px;
+  color: #FB923C;
+  font-weight: 600;
+}
+.asset-card-owners {
+  font-size: 11px;
+  color: #4A6080;
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════
+   SCREEN 2: ASSET DETAIL
+══════════════════════════════════ */
+#screen-detail {
+  padding-bottom: 20px;
+}
+
+.detail-hero {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  position: relative;
+}
+.detail-hero-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(transparent, #0A1120);
+}
+
+.detail-body { padding: 0 20px 24px; }
+.detail-location {
+  font-size: 12px;
+  color: #4A6080;
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.detail-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #F1F5F9;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.detail-tags { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+
+.detail-price-box {
+  background: #131F30;
+  border-radius: 14px;
+  border: 1px solid #1E2D40;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.detail-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.detail-price-label { font-size: 13px; color: #64748B; }
+.detail-price-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #4ADE80;
+}
+.detail-price-unit { font-size: 13px; color: #64748B; }
+
+.progress-section { margin-bottom: 6px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+.progress-bar {
+  height: 8px;
+  background: #1E2D40;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16A34A, #4ADE80);
+  border-radius: 4px;
+}
+
+.detail-section {
+  margin-bottom: 20px;
+}
+.detail-desc {
+  font-size: 14px;
+  color: #94A3B8;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.info-item {
+  background: #131F30;
+  border-radius: 12px;
+  border: 1px solid #1E2D40;
+  padding: 12px;
+}
+.info-item-label { font-size: 11px; color: #4A6080; margin-bottom: 4px; }
+.info-item-value { font-size: 14px; font-weight: 700; color: #F1F5F9; }
+
+.owner-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #1E2D40;
+}
+.owner-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.owner-info { flex: 1; }
+.owner-name { font-size: 13px; font-weight: 600; color: #F1F5F9; }
+.owner-meta { font-size: 11px; color: #4A6080; margin-top: 2px; }
+.owner-units { font-size: 13px; font-weight: 700; color: #4ADE80; }
+
+.buy-footer {
+  padding: 12px 20px 0;
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(transparent, #0A1120 30%);
+}
+
+/* ══════════════════════════════════
+   SCREEN 3: PURCHASE COMPLETE
+══════════════════════════════════ */
+#screen-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 24px;
+}
+
+.complete-icon {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #16A34A, #4ADE80);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  margin-bottom: 20px;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.complete-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #F1F5F9;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.complete-sub {
+  font-size: 13px;
+  color: #64748B;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+/* NFT Card */
+.nft-card {
+  width: 100%;
+  max-width: 320px;
+  background: linear-gradient(135deg, #0F2D1F, #163040);
+  border-radius: 20px;
+  border: 1px solid #1E3D2F;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 28px;
+  animation: slideUp 0.5s 0.2s both;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.nft-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 150px; height: 150px;
+  background: radial-gradient(circle, rgba(74,222,128,0.12), transparent);
+}
+.nft-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.nft-label { font-size: 10px; font-weight: 700; color: #4ADE80; letter-spacing: 2px; }
+.nft-id { font-size: 11px; color: #4A6080; }
+.nft-emoji { font-size: 52px; text-align: center; margin-bottom: 14px; display: block; }
+.nft-card-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #F1F5F9;
+  margin-bottom: 4px;
+}
+.nft-card-location { font-size: 12px; color: #4A6080; margin-bottom: 14px; }
+.nft-card-divider {
+  border: none;
+  border-top: 1px solid #1E3D2F;
+  margin-bottom: 14px;
+}
+.nft-card-footer {
+  display: flex;
+  justify-content: space-between;
+}
+.nft-foot-item { }
+.nft-foot-label { font-size: 10px; color: #4A6080; margin-bottom: 2px; }
+.nft-foot-value { font-size: 13px; font-weight: 700; color: #F1F5F9; }
+
+.complete-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+/* ══════════════════════════════════
+   SCREEN 4: MY TERRITORY
+══════════════════════════════════ */
+#screen-territory { padding-bottom: 24px; }
+
+.territory-hero {
+  margin: 0 16px 20px;
+  background: linear-gradient(135deg, #0F2D1F 0%, #0F2040 100%);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #1E3D2F;
+}
+.territory-greeting { font-size: 13px; color: #4A6080; margin-bottom: 4px; }
+.territory-name { font-size: 20px; font-weight: 800; color: #F1F5F9; margin-bottom: 16px; }
+.territory-stats { display: flex; gap: 0; }
+.t-stat {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+  border-right: 1px solid #1E3D2F;
+}
+.t-stat:last-child { border-right: none; }
+.t-stat-value { font-size: 20px; font-weight: 800; color: #4ADE80; }
+.t-stat-label { font-size: 10px; color: #4A6080; margin-top: 2px; }
+
+.delivery-alert {
+  margin: 0 16px 20px;
+  background: linear-gradient(135deg, rgba(251,146,60,0.1), rgba(251,146,60,0.05));
+  border: 1px solid rgba(251,146,60,0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.delivery-alert-icon { font-size: 28px; }
+.delivery-alert-text h4 { font-size: 13px; font-weight: 700; color: #FB923C; margin-bottom: 2px; }
+.delivery-alert-text p { font-size: 12px; color: #64748B; }
+
+.my-assets { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.my-asset-card {
+  background: #131F30;
+  border-radius: 16px;
+  border: 1px solid #1E2D40;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.my-asset-card:active { transform: scale(0.98); }
+.my-asset-emoji { font-size: 36px; flex-shrink: 0; }
+.my-asset-info { flex: 1; }
+.my-asset-name { font-size: 15px; font-weight: 700; color: #F1F5F9; margin-bottom: 2px; }
+.my-asset-location { font-size: 11px; color: #4A6080; margin-bottom: 8px; }
+.my-asset-meta { display: flex; gap: 8px; align-items: center; }
+.my-asset-units { font-size: 12px; font-weight: 600; color: #4ADE80; }
+.my-asset-next { font-size: 11px; color: #64748B; }
+.my-asset-value { font-size: 15px; font-weight: 700; color: #F1F5F9; flex-shrink: 0; }
+
+.timeline { padding: 0 16px; }
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 1px;
+  background: #1E2D40;
+}
+.timeline-item:last-child::before { display: none; }
+.timeline-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.timeline-dot-green { background: rgba(74,222,128,0.15); }
+.timeline-dot-amber { background: rgba(251,146,60,0.15); }
+.timeline-dot-blue  { background: rgba(34,211,238,0.15); }
+.timeline-content { padding-top: 4px; }
+.timeline-title { font-size: 13px; font-weight: 600; color: #F1F5F9; margin-bottom: 2px; }
+.timeline-sub { font-size: 11px; color: #64748B; }
+.timeline-time { font-size: 10px; color: #4A6080; margin-top: 4px; }
+
+/* ══════════════════════════════════
+   SCREEN 5: DAO
+══════════════════════════════════ */
+#screen-dao { padding-bottom: 24px; }
+
+.dao-banner {
+  margin: 0 16px 20px;
+  background: linear-gradient(135deg, #0F1F30, #1A1040);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #2A1E50;
+  position: relative;
+  overflow: hidden;
+}
+.dao-banner::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(168,85,247,0.15), transparent);
+}
+.dao-banner h3 { font-size: 13px; color: #A855F7; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+.dao-banner h2 { font-size: 18px; font-weight: 800; color: #F1F5F9; margin-bottom: 8px; }
+.dao-banner p { font-size: 12px; color: #64748B; line-height: 1.5; }
+.dao-banner-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2A1E50;
+}
+.dao-stat-val { font-size: 18px; font-weight: 800; color: #A855F7; }
+.dao-stat-lbl { font-size: 10px; color: #64748B; margin-top: 1px; }
+
+.vote-cards { padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.vote-card {
+  background: #131F30;
+  border-radius: 18px;
+  border: 1px solid #1E2D40;
+  padding: 18px;
+  cursor: pointer;
+}
+.vote-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.vote-card-emoji { font-size: 24px; }
+.vote-card-meta { flex: 1; }
+.vote-card-asset { font-size: 11px; color: #4A6080; margin-bottom: 2px; }
+.vote-card-title { font-size: 15px; font-weight: 700; color: #F1F5F9; line-height: 1.3; }
+.vote-card-deadline { font-size: 11px; color: #F87171; font-weight: 600; }
+
+.vote-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.vote-option {
+  background: #1A2A3E;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.vote-option:hover { border-color: #4ADE80; }
+.vote-option.selected { background: rgba(74,222,128,0.1); border-color: #4ADE80; }
+.vote-option-label { font-size: 13px; font-weight: 500; color: #F1F5F9; flex: 1; }
+.vote-bar-wrap { flex: 2; height: 6px; background: #0A1120; border-radius: 3px; overflow: hidden; }
+.vote-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #A855F7, #22D3EE); }
+.vote-pct { font-size: 12px; font-weight: 700; color: #A855F7; width: 32px; text-align: right; }
+.vote-count { font-size: 11px; color: #4A6080; margin-top: 8px; }
+
+.vote-result-card {
+  background: #131F30;
+  border-radius: 18px;
+  border: 1px solid #1E2D40;
+  padding: 18px;
+}
+.vote-result-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.vote-result-title { font-size: 14px; font-weight: 700; color: #F1F5F9; }
+.vote-result-body {
+  background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(34,211,238,0.05));
+  border-radius: 12px;
+  border: 1px solid rgba(74,222,128,0.2);
+  padding: 14px;
+}
+.vote-result-outcome { font-size: 15px; font-weight: 700; color: #4ADE80; margin-bottom: 4px; }
+.vote-result-sub { font-size: 12px; color: #64748B; }
+
+/* ══════════════════════════════════
+   SCREEN 6: CERTIFICATE
+══════════════════════════════════ */
+#screen-cert {
+  padding: 0 0 24px;
+}
+
+.cert-header {
+  padding: 16px 20px;
+  background: #0A1120;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.cert-header h2 { font-size: 18px; font-weight: 800; color: #F1F5F9; }
+.cert-header p { font-size: 12px; color: #64748B; margin-top: 2px; }
+
+.cert-card {
+  margin: 16px;
+  background: linear-gradient(145deg, #0A1F14, #0F1A2E, #1A0F2E);
+  border-radius: 20px;
+  border: 1px solid #1E3D2F;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.cert-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(74,222,128,0.05), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(168,85,247,0.05), transparent 50%);
+}
+.cert-watermark {
+  position: absolute;
+  bottom: 20px; right: 20px;
+  font-size: 80px;
+  opacity: 0.04;
+  transform: rotate(-15deg);
+}
+.cert-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.cert-logo {
+  font-size: 15px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4ADE80, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cert-verified { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #4ADE80; }
+
+.cert-type { font-size: 10px; color: #4A6080; letter-spacing: 2px; margin-bottom: 6px; }
+.cert-title { font-size: 18px; font-weight: 800; color: #F1F5F9; margin-bottom: 4px; }
+.cert-name { font-size: 22px; font-weight: 800; color: #4ADE80; margin-bottom: 20px; }
+
+.cert-divider { border: none; border-top: 1px solid #1E3D2F; margin-bottom: 20px; }
+
+.cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.cert-item {}
+.cert-item-label { font-size: 10px; color: #4A6080; letter-spacing: 1px; margin-bottom: 4px; }
+.cert-item-value { font-size: 13px; font-weight: 700; color: #F1F5F9; }
+
+.cert-activities { margin-bottom: 20px; }
+.cert-act-title { font-size: 11px; color: #4A6080; letter-spacing: 1px; margin-bottom: 10px; }
+.cert-act-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(30,45,64,0.5);
+}
+.cert-act-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; margin-top: 5px; flex-shrink: 0; }
+.cert-act-text { font-size: 12px; color: #94A3B8; line-height: 1.5; }
+
+.cert-hash {
+  font-size: 9px;
+  color: #2D4060;
+  font-family: monospace;
+  word-break: break-all;
+  margin-bottom: 16px;
+}
+.cert-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.cert-qr-box {
+  width: 60px; height: 60px;
+  background: #F1F5F9;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #0A1120;
+  font-weight: 700;
+}
+.cert-qr-info { font-size: 11px; color: #4A6080; line-height: 1.5; }
+
+.share-row { padding: 0 16px; display: flex; gap: 10px; }
+
+/* ══════════════════════════════════
+   MISC
+══════════════════════════════════ */
+.section-pad { padding: 0 16px; margin-bottom: 6px; }
+.mb-4 { margin-bottom: 4px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-16 { margin-top: 16px; }
+.gap-line { height: 1px; background: #1E2D40; margin: 16px 0; }
+
+.voted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgba(74,222,128,0.15);
+  color: #4ADE80;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="notch"></div>
+    <div class="status-icons">
+      <span>▲▲▲</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- ════ SCREEN: MARKET ════ -->
+    <div id="screen-market" class="screen active">
+      <div class="header">
+        <span class="header-logo">LOCA-SHARE</span>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span class="header-bell">🔔</span>
+          <div class="header-avatar">田</div>
+        </div>
+      </div>
+
+      <div class="market-hero">
+        <h2>地方を所有する。<br>都会で生き抜く。</h2>
+        <p>1平米から始める、あなただけの「デジタル領土」</p>
+        <div class="market-hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value">247</div>
+            <div class="hero-stat-label">登録資産数</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">3,412</div>
+            <div class="hero-stat-label">オーナー数</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">¥2,200〜</div>
+            <div class="hero-stat-label">最小投資額</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <div class="filter-chip active">すべて</div>
+        <div class="filter-chip">農地</div>
+        <div class="filter-chip">サウナ</div>
+        <div class="filter-chip">醸造</div>
+        <div class="filter-chip">古民家</div>
+        <div class="filter-chip">果樹</div>
+      </div>
+
+      <div class="asset-list">
+
+        <!-- Asset 1 -->
+        <div class="asset-card" onclick="showDetail(0)">
+          <div class="asset-card-image" style="background: linear-gradient(135deg,#1A2E1A,#0F2D1F)">
+            <span>🍎</span>
+            <div class="asset-card-badge"><span class="tag tag-amber">🔥 人気No.1</span></div>
+            <div class="asset-card-progress-wrap">
+              <div class="asset-card-progress" style="width:71%"></div>
+            </div>
+          </div>
+          <div class="asset-card-body">
+            <div class="asset-card-location">📍 長野県松本市</div>
+            <div class="asset-card-name">信州りんご畑</div>
+            <div class="asset-card-meta">
+              <div>
+                <div class="asset-card-price">¥3,800<span> / 1平米</span></div>
+                <div class="asset-card-yield">🍂 年2回収穫（米・野菜）</div>
+              </div>
+              <div style="text-align:right">
+                <span class="tag tag-red">残29株</span>
+              </div>
+            </div>
+            <div class="asset-card-owners">👥 143名がオーナー</div>
+          </div>
+        </div>
+
+        <!-- Asset 2 -->
+        <div class="asset-card" onclick="showDetail(1)">
+          <div class="asset-card-image" style="background: linear-gradient(135deg,#1A1E2E,#0F1F30)">
+            <span>🧖</span>
+            <div class="asset-card-badge"><span class="tag tag-blue">✨ 新着</span></div>
+            <div class="asset-card-progress-wrap">
+              <div class="asset-card-progress" style="width:40%"></div>
+            </div>
+          </div>
+          <div class="asset-card-body">
+            <div class="asset-card-location">📍 岐阜県高山市</div>
+            <div class="asset-card-name">奥飛騨ヒノキサウナ</div>
+            <div class="asset-card-meta">
+              <div>
+                <div class="asset-card-price">¥12,000<span> / 1/50株</span></div>
+                <div class="asset-card-yield">🌿 年4回ヒノキオイル配送</div>
+              </div>
+              <div style="text-align:right">
+                <span class="tag tag-green">余裕あり</span>
+              </div>
+            </div>
+            <div class="asset-card-owners">👥 20名がオーナー</div>
+          </div>
+        </div>
+
+        <!-- Asset 3 -->
+        <div class="asset-card" onclick="showDetail(2)">
+          <div class="asset-card-image" style="background: linear-gradient(135deg,#1E1A10,#2E2010)">
+            <span>🧅</span>
+            <div class="asset-card-badge"><span class="tag tag-green">¥2,200〜</span></div>
+            <div class="asset-card-progress-wrap">
+              <div class="asset-card-progress" style="width:88%"></div>
+            </div>
+          </div>
+          <div class="asset-card-body">
+            <div class="asset-card-location">📍 兵庫県淡路市</div>
+            <div class="asset-card-name">淡路島たまねぎ畑</div>
+            <div class="asset-card-meta">
+              <div>
+                <div class="asset-card-price">¥2,200<span> / 1平米</span></div>
+                <div class="asset-card-yield">🧅 年1回たまねぎ10kg配送</div>
+              </div>
+              <div style="text-align:right">
+                <span class="tag tag-red">残12株</span>
+              </div>
+            </div>
+            <div class="asset-card-owners">👥 88名がオーナー</div>
+          </div>
+        </div>
+
+        <!-- Asset 4 -->
+        <div class="asset-card" onclick="showDetail(3)">
+          <div class="asset-card-image" style="background: linear-gradient(135deg,#1A1030,#201040)">
+            <span>🍶</span>
+            <div class="asset-card-badge"><span class="tag tag-blue">プレミアム</span></div>
+            <div class="asset-card-progress-wrap">
+              <div class="asset-card-progress" style="width:55%"></div>
+            </div>
+          </div>
+          <div class="asset-card-body">
+            <div class="asset-card-location">📍 京都府京丹後市</div>
+            <div class="asset-card-name">丹後半島 醸造樽</div>
+            <div class="asset-card-meta">
+              <div>
+                <div class="asset-card-price">¥15,000<span> / 1/30株</span></div>
+                <div class="asset-card-yield">🍶 年1回日本酒720ml×3本</div>
+              </div>
+              <div style="text-align:right">
+                <span class="tag tag-amber">人気上昇中</span>
+              </div>
+            </div>
+            <div class="asset-card-owners">👥 16名がオーナー</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════ SCREEN: ASSET DETAIL ════ -->
+    <div id="screen-detail" class="screen">
+      <div class="header">
+        <div class="header-back" onclick="showScreen('market')">← 戻る</div>
+        <span class="header-title">資産詳細</span>
+        <span>🔖</span>
+      </div>
+
+      <div class="detail-hero" id="detail-hero">
+        <span style="font-size:80px" id="detail-emoji">🍎</span>
+        <div class="detail-hero-overlay"></div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-location">📍 <span id="detail-location">長野県松本市</span></div>
+        <div class="detail-name" id="detail-name">信州りんご畑</div>
+        <div class="detail-tags" id="detail-tags">
+          <span class="tag tag-green">農地</span>
+          <span class="tag tag-amber">🔥 人気No.1</span>
+          <span class="tag tag-blue">DAO対応</span>
+        </div>
+
+        <div class="detail-price-box">
+          <div class="detail-price-row">
+            <div>
+              <div class="detail-price-label">1株の価格</div>
+              <div class="detail-price-value" id="detail-price">¥3,800</div>
+              <div class="detail-price-unit" id="detail-unit">1平米あたり</div>
+            </div>
+            <div style="text-align:right">
+              <div class="detail-price-label">次回配送</div>
+              <div style="font-size:14px;font-weight:700;color:#FB923C" id="detail-harvest">2026年10月</div>
+            </div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>販売状況</span>
+              <span id="detail-progress-text">143 / 200株</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="detail-progress-bar" style="width:71%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">資産について</div>
+          <div class="detail-desc" id="detail-desc">
+            標高750mの高原に広がる、100年以上の歴史を持つりんご農園の一部です。農薬不使用の完全無農薬栽培で育てられたりんごは毎年秋に収穫され、オーナーへ直送されます。
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item-label">📦 配送物</div>
+              <div class="info-item-value" id="detail-yield">りんご 5kg</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🗳️ DAO投票</div>
+              <div class="info-item-value">参加できる</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">🔑 現地利用</div>
+              <div class="info-item-value">農園見学可</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">💱 転売</div>
+              <div class="info-item-value">可能</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">現オーナー（一部）</div>
+          <div class="owner-row">
+            <div class="owner-avatar" style="background:linear-gradient(135deg,#4ADE80,#22D3EE);color:#0A1120">T</div>
+            <div class="owner-info">
+              <div class="owner-name">tanaka_shotaro</div>
+              <div class="owner-meta">東京都 · 大学3年</div>
+            </div>
+            <div class="owner-units">3株</div>
+          </div>
+          <div class="owner-row">
+            <div class="owner-avatar" style="background:linear-gradient(135deg,#FB923C,#F59E0B);color:#0A1120">S</div>
+            <div class="owner-info">
+              <div class="owner-name">sato_miyuki</div>
+              <div class="owner-meta">大阪府 · 会社員</div>
+            </div>
+            <div class="owner-units">1株</div>
+          </div>
+          <div class="owner-row">
+            <div class="owner-avatar" style="background:linear-gradient(135deg,#A855F7,#22D3EE);color:#0A1120">Y</div>
+            <div class="owner-info">
+              <div class="owner-name">yamamoto_k</div>
+              <div class="owner-meta">神奈川県 · 大学院生</div>
+            </div>
+            <div class="owner-units">2株</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="buy-footer">
+        <button class="btn btn-primary" onclick="showComplete()">🌱 1株のオーナーになる — ¥<span id="buy-price">3,800</span></button>
+      </div>
+    </div>
+
+    <!-- ════ SCREEN: PURCHASE COMPLETE ════ -->
+    <div id="screen-complete" class="screen">
+      <div class="complete-icon">🌱</div>
+      <div class="complete-title">オーナーになりました！</div>
+      <div class="complete-sub">あなたの「デジタル領土」が<br>誕生しました</div>
+
+      <div class="nft-card">
+        <div class="nft-card-header">
+          <span class="nft-label">LOCA-SHARE NFT</span>
+          <span class="nft-id" id="nft-id">#0144</span>
+        </div>
+        <span class="nft-emoji" id="nft-emoji">🍎</span>
+        <div class="nft-card-name" id="nft-name">信州りんご畑</div>
+        <div class="nft-card-location" id="nft-location">📍 長野県松本市 · 1平米</div>
+        <hr class="nft-card-divider">
+        <div class="nft-card-footer">
+          <div class="nft-foot-item">
+            <div class="nft-foot-label">購入価格</div>
+            <div class="nft-foot-value" id="nft-price">¥3,800</div>
+          </div>
+          <div class="nft-foot-item">
+            <div class="nft-foot-label">次回配送</div>
+            <div class="nft-foot-value" id="nft-harvest">2026年10月</div>
+          </div>
+          <div class="nft-foot-item">
+            <div class="nft-foot-label">取得日</div>
+            <div class="nft-foot-value">2026.05.04</div>
+          </div>
+        </div>
+        <div class="cert-watermark">🌿</div>
+      </div>
+
+      <div class="complete-actions">
+        <button class="btn btn-primary" onclick="showScreen('territory')">マイ領土を確認する →</button>
+        <button class="btn btn-secondary" onclick="showScreen('market')">他の資産も見る</button>
+      </div>
+    </div>
+
+    <!-- ════ SCREEN: MY TERRITORY ════ -->
+    <div id="screen-territory" class="screen">
+      <div class="header">
+        <span class="header-logo">マイ領土</span>
+        <div class="header-avatar">田</div>
+      </div>
+
+      <div class="territory-hero">
+        <div class="territory-greeting">おかえりなさい</div>
+        <div class="territory-name">田中 翔太 の領土 🌿</div>
+        <div class="territory-stats">
+          <div class="t-stat">
+            <div class="t-stat-value">4</div>
+            <div class="t-stat-label">所有資産</div>
+          </div>
+          <div class="t-stat">
+            <div class="t-stat-value">¥28,800</div>
+            <div class="t-stat-label">総投資額</div>
+          </div>
+          <div class="t-stat">
+            <div class="t-stat-value">23票</div>
+            <div class="t-stat-label">DAO参加</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-alert">
+        <div class="delivery-alert-icon">🚚</div>
+        <div class="delivery-alert-text">
+          <h4>まもなく配送予定</h4>
+          <p>信州りんご 5kg — 2026年10月15日着予定</p>
+        </div>
+      </div>
+
+      <div class="section-pad mb-12">
+        <div class="section-title">所有資産</div>
+      </div>
+      <div class="my-assets mb-20">
+        <div class="my-asset-card">
+          <div class="my-asset-emoji">🍎</div>
+          <div class="my-asset-info">
+            <div class="my-asset-name">信州りんご畑</div>
+            <div class="my-asset-location">📍 長野県松本市</div>
+            <div class="my-asset-meta">
+              <span class="my-asset-units">1平米</span>
+              <span class="my-asset-next">🍂 10月収穫</span>
+            </div>
+          </div>
+          <div class="my-asset-value">¥3,800</div>
+        </div>
+        <div class="my-asset-card">
+          <div class="my-asset-emoji">🧅</div>
+          <div class="my-asset-info">
+            <div class="my-asset-name">淡路島たまねぎ畑</div>
+            <div class="my-asset-location">📍 兵庫県淡路市</div>
+            <div class="my-asset-meta">
+              <span class="my-asset-units">2平米</span>
+              <span class="my-asset-next">🌱 6月収穫</span>
+            </div>
+          </div>
+          <div class="my-asset-value">¥4,400</div>
+        </div>
+        <div class="my-asset-card">
+          <div class="my-asset-emoji">🧖</div>
+          <div class="my-asset-info">
+            <div class="my-asset-name">奥飛騨ヒノキサウナ</div>
+            <div class="my-asset-location">📍 岐阜県高山市</div>
+            <div class="my-asset-meta">
+              <span class="my-asset-units">1/50株</span>
+              <span class="my-asset-next">🗝️ 利用権あり</span>
+            </div>
+          </div>
+          <div class="my-asset-value">¥12,000</div>
+        </div>
+        <div class="my-asset-card">
+          <div class="my-asset-emoji">🍶</div>
+          <div class="my-asset-info">
+            <div class="my-asset-name">丹後半島 醸造樽</div>
+            <div class="my-asset-location">📍 京都府京丹後市</div>
+            <div class="my-asset-meta">
+              <span class="my-asset-units">1/30株</span>
+              <span class="my-asset-next">🍶 3月配送</span>
+            </div>
+          </div>
+          <div class="my-asset-value">¥15,000</div>
+        </div>
+      </div>
+
+      <div class="section-pad mb-12">
+        <div class="section-title">最近のアクティビティ</div>
+      </div>
+      <div class="timeline" style="padding: 0 20px">
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-green">🍎</div>
+          <div class="timeline-content">
+            <div class="timeline-title">りんご5kgが発送されました</div>
+            <div class="timeline-sub">信州りんご畑 · 長野県松本市</div>
+            <div class="timeline-time">2025年10月12日</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-amber">🗳️</div>
+          <div class="timeline-content">
+            <div class="timeline-title">DAO投票に参加しました</div>
+            <div class="timeline-sub">サウナ外壁の素材変更 → ヒノキ板を支持</div>
+            <div class="timeline-time">2025年9月20日</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot timeline-dot-blue">🧅</div>
+          <div class="timeline-content">
+            <div class="timeline-title">たまねぎ10kgが届きました</div>
+            <div class="timeline-sub">淡路島たまねぎ畑 · 兵庫県淡路市</div>
+            <div class="timeline-time">2025年6月8日</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SCREEN: DAO ════ -->
+    <div id="screen-dao" class="screen">
+      <div class="header">
+        <span class="header-logo">DAO</span>
+        <span class="tag tag-blue" style="font-size:11px">3件の投票中</span>
+      </div>
+
+      <div class="dao-banner">
+        <h3>LOCA-SHARE DAO</h3>
+        <h2>あなたの1票が<br>リアルを変える</h2>
+        <p>所有資産の運営方針をオーナー全員で決定します。投票結果は実際の農場・施設運営に反映されます。</p>
+        <div class="dao-banner-stats">
+          <div>
+            <div class="dao-stat-val">23</div>
+            <div class="dao-stat-lbl">あなたの投票数</div>
+          </div>
+          <div>
+            <div class="dao-stat-val">3</div>
+            <div class="dao-stat-lbl">現在進行中</div>
+          </div>
+          <div>
+            <div class="dao-stat-val">847</div>
+            <div class="dao-stat-lbl">総投票数</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-pad mb-12">
+        <div class="section-title">投票受付中</div>
+      </div>
+      <div class="vote-cards">
+
+        <!-- Vote 1 -->
+        <div class="vote-card">
+          <div class="vote-card-header">
+            <span class="vote-card-emoji">🧖</span>
+            <div class="vote-card-meta">
+              <div class="vote-card-asset">奥飛騨ヒノキサウナ</div>
+              <div class="vote-card-title">サウナ外壁の素材を変更する</div>
+            </div>
+            <div class="vote-card-deadline">残3日</div>
+          </div>
+          <div class="vote-options">
+            <div class="vote-option selected" onclick="selectVote(this)">
+              <span class="vote-option-label">🌲 ヒノキ板（高級感重視）</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:62%"></div></div>
+              <span class="vote-pct">62%</span>
+            </div>
+            <div class="vote-option" onclick="selectVote(this)">
+              <span class="vote-option-label">🪨 石造り（耐久性重視）</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:28%"></div></div>
+              <span class="vote-pct">28%</span>
+            </div>
+            <div class="vote-option" onclick="selectVote(this)">
+              <span class="vote-option-label">🌿 竹素材（環境重視）</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:10%"></div></div>
+              <span class="vote-pct">10%</span>
+            </div>
+          </div>
+          <div class="vote-count">148名が投票 · あなたは「ヒノキ板」に投票済み</div>
+          <div class="voted-badge">✅ 投票済み</div>
+        </div>
+
+        <!-- Vote 2 -->
+        <div class="vote-card">
+          <div class="vote-card-header">
+            <span class="vote-card-emoji">🍎</span>
+            <div class="vote-card-meta">
+              <div class="vote-card-asset">信州りんご畑</div>
+              <div class="vote-card-title">収穫後の加工方法を選ぶ</div>
+            </div>
+            <div class="vote-card-deadline">残7日</div>
+          </div>
+          <div class="vote-options">
+            <div class="vote-option" onclick="selectVote(this)">
+              <span class="vote-option-label">🍎 生りんごのまま配送</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:45%"></div></div>
+              <span class="vote-pct">45%</span>
+            </div>
+            <div class="vote-option" onclick="selectVote(this)">
+              <span class="vote-option-label">🧃 ジュース加工して配送</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:35%"></div></div>
+              <span class="vote-pct">35%</span>
+            </div>
+            <div class="vote-option" onclick="selectVote(this)">
+              <span class="vote-option-label">🍯 ジャム加工して配送</span>
+              <div class="vote-bar-wrap"><div class="vote-bar" style="width:20%"></div></div>
+              <span class="vote-pct">20%</span>
+            </div>
+          </div>
+          <div class="vote-count">89名が投票 · 未投票</div>
+        </div>
+
+        <div class="section-pad mb-12" style="padding-top:8px">
+          <div class="section-title">直近の決定事項</div>
+        </div>
+        <!-- Result card -->
+        <div class="vote-result-card">
+          <div class="vote-result-header">
+            <span style="font-size:20px">🧅</span>
+            <div>
+              <div style="font-size:11px;color:#4A6080;margin-bottom:2px">淡路島たまねぎ畑 · 確定済み</div>
+              <div class="vote-result-title">来季の栽培品種を決定</div>
+            </div>
+          </div>
+          <div class="vote-result-body">
+            <div class="vote-result-outcome">✅ 「淡路島ゴールド」に決定（68%支持）</div>
+            <div class="vote-result-sub">274名が投票 · 2026年4月に農家へ伝達済み</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════ SCREEN: CERTIFICATE ════ -->
+    <div id="screen-cert" class="screen">
+      <div class="cert-header">
+        <h2>活動証明書</h2>
+        <p>DAO参加実績をガクチカとして証明</p>
+      </div>
+
+      <div class="cert-card">
+        <div class="cert-logo-row">
+          <span class="cert-logo">LOCA-SHARE</span>
+          <div class="cert-verified">✅ ブロックチェーン認証</div>
+        </div>
+
+        <div class="cert-type">ACTIVITY CERTIFICATE</div>
+        <div class="cert-title">地方資産 DAO 参加証明書</div>
+        <div class="cert-name">田中 翔太</div>
+
+        <hr class="cert-divider">
+
+        <div class="cert-grid">
+          <div class="cert-item">
+            <div class="cert-item-label">所有資産数</div>
+            <div class="cert-item-value">4資産</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-item-label">DAO参加回数</div>
+            <div class="cert-item-value">23回</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-item-label">関与地域</div>
+            <div class="cert-item-value">4都府県</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-item-label">活動期間</div>
+            <div class="cert-item-value">2025.04〜</div>
+          </div>
+        </div>
+
+        <div class="cert-activities">
+          <div class="cert-act-title">主な意思決定への参加実績</div>
+          <div class="cert-act-item">
+            <div class="cert-act-dot"></div>
+            <div class="cert-act-text">奥飛騨サウナの外壁素材選定において、環境負荷・コスト・ブランド価値を比較分析の上でヒノキ板を支持（可決）</div>
+          </div>
+          <div class="cert-act-item">
+            <div class="cert-act-dot"></div>
+            <div class="cert-act-text">淡路島たまねぎ畑の品種選定において、市場単価・収量データを参照し「淡路島ゴールド」を推薦（可決）</div>
+          </div>
+          <div class="cert-act-item">
+            <div class="cert-act-dot"></div>
+            <div class="cert-act-text">信州りんご農園のEC販路拡大提案を作成・提出し、採用された実績あり</div>
+          </div>
+        </div>
+
+        <div class="cert-hash">TX: 0x8f3a2d19c7b4e6f1a0d5c8e2b9f4a7d3e6c1b8a5f2d9e4b7c0a3f6d9e2b5c8a1</div>
+        <div class="cert-qr">
+          <div class="cert-qr-box">QR</div>
+          <div class="cert-qr-info">
+            このQRコードから証明書の<br>
+            真正性を第三者が確認できます<br>
+            <span style="color:#4ADE80;font-weight:600">loca-share.io/cert/0x8f3a…</span>
+          </div>
+        </div>
+        <div class="cert-watermark">🌿</div>
+      </div>
+
+      <div class="share-row">
+        <button class="btn btn-primary" style="flex:2">📤 就活に使う（PDF出力）</button>
+        <button class="btn btn-secondary" style="flex:1">🔗 シェア</button>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-market" onclick="switchTab('market')">
+      <span class="nav-icon">🌾</span>
+      <span class="nav-label">市場</span>
+    </div>
+    <div class="nav-item" id="nav-territory" onclick="switchTab('territory')">
+      <span class="nav-icon">🗺️</span>
+      <span class="nav-label">マイ領土</span>
+    </div>
+    <div class="nav-item" id="nav-dao" onclick="switchTab('dao')">
+      <span class="nav-icon">🗳️</span>
+      <span class="nav-label">DAO</span>
+    </div>
+    <div class="nav-item" id="nav-cert" onclick="switchTab('cert')">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">証明書</span>
+    </div>
+  </div>
+</div><!-- /phone -->
+
+<script>
+const assets = [
+  {
+    emoji: '🍎', location: '長野県松本市', name: '信州りんご畑',
+    price: '¥3,800', unit: '1平米あたり', harvest: '2026年10月',
+    progressText: '143 / 200株', progressW: '71%',
+    desc: '標高750mの高原に広がる、100年以上の歴史を持つりんご農園の一部です。農薬不使用の完全無農薬栽培で育てられたりんごは毎年秋に収穫され、オーナーへ直送されます。',
+    yield: 'りんご 5kg', bg: 'linear-gradient(135deg,#1A2E1A,#0F2D1F)',
+    nftId: '#0144', nftUnit: '1平米', buyPrice: '3,800'
+  },
+  {
+    emoji: '🧖', location: '岐阜県高山市', name: '奥飛騨ヒノキサウナ',
+    price: '¥12,000', unit: '1/50株あたり', harvest: '2027年1月',
+    progressText: '20 / 50株', progressW: '40%',
+    desc: '樹齢80年のヒノキを使用した本格フィンランド式サウナ施設の共同所有権です。オーナーは「オーナー専用キー」で予約なしに利用できます。',
+    yield: 'ヒノキオイル 30ml×4本', bg: 'linear-gradient(135deg,#1A1E2E,#0F1F30)',
+    nftId: '#0021', nftUnit: '1/50株', buyPrice: '12,000'
+  },
+  {
+    emoji: '🧅', location: '兵庫県淡路市', name: '淡路島たまねぎ畑',
+    price: '¥2,200', unit: '1平米あたり', harvest: '2026年6月',
+    progressText: '88 / 100株', progressW: '88%',
+    desc: '日本一の産地として名高い淡路島の玉ねぎ畑。糖度が高く、生でも食べられる高品質なたまねぎが年1回オーナーへ届きます。',
+    yield: 'たまねぎ 10kg', bg: 'linear-gradient(135deg,#1E1A10,#2E2010)',
+    nftId: '#0089', nftUnit: '1平米', buyPrice: '2,200'
+  },
+  {
+    emoji: '🍶', location: '京都府京丹後市', name: '丹後半島 醸造樽',
+    price: '¥15,000', unit: '1/30株あたり', harvest: '2027年3月',
+    progressText: '16 / 30株', progressW: '55%',
+    desc: '200年の歴史を持つ老舗酒蔵の醸造樽1/30の持分です。毎年仕込みの季節に蔵元から直接限定日本酒が届きます。',
+    yield: '限定日本酒 720ml×3本', bg: 'linear-gradient(135deg,#1A1030,#201040)',
+    nftId: '#0017', nftUnit: '1/30株', buyPrice: '15,000'
+  }
+];
+
+function showDetail(idx) {
+  const a = assets[idx];
+  document.getElementById('detail-hero').style.background = a.bg;
+  document.getElementById('detail-emoji').textContent = a.emoji;
+  document.getElementById('detail-location').textContent = a.location;
+  document.getElementById('detail-name').textContent = a.name;
+  document.getElementById('detail-price').textContent = a.price;
+  document.getElementById('detail-unit').textContent = a.unit;
+  document.getElementById('detail-harvest').textContent = a.harvest;
+  document.getElementById('detail-progress-text').textContent = a.progressText;
+  document.getElementById('detail-progress-bar').style.width = a.progressW;
+  document.getElementById('detail-desc').textContent = a.desc;
+  document.getElementById('detail-yield').textContent = a.yield;
+  document.getElementById('buy-price').textContent = a.buyPrice;
+
+  // store for complete screen
+  window._selectedAsset = idx;
+  showScreen('detail');
+}
+
+function showComplete() {
+  const a = assets[window._selectedAsset || 0];
+  document.getElementById('nft-emoji').textContent = a.emoji;
+  document.getElementById('nft-name').textContent = a.name;
+  document.getElementById('nft-location').textContent = '📍 ' + a.location + ' · ' + a.nftUnit;
+  document.getElementById('nft-id').textContent = a.nftId;
+  document.getElementById('nft-price').textContent = '¥' + a.buyPrice;
+  document.getElementById('nft-harvest').textContent = a.harvest;
+  showScreen('complete');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('screen-' + id).scrollTop = 0;
+
+  // update nav
+  const tabMap = { market: 'market', territory: 'territory', dao: 'dao', cert: 'cert' };
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (tabMap[id]) {
+    document.getElementById('nav-' + tabMap[id])?.classList.add('active');
+  }
+}
+
+function switchTab(id) {
+  showScreen(id);
+}
+
+function selectVote(el) {
+  const parent = el.closest('.vote-options');
+  parent.querySelectorAll('.vote-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>
